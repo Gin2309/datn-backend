@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -50,6 +51,16 @@ export class UserController {
         count: total,
         list: list,
       },
+    };
+  }
+
+  @Get('employees')
+  async getEmployees() {
+    const list = await this.userService.findEmployees();
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Success',
+      data: list,
     };
   }
 

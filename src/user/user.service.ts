@@ -11,6 +11,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { removePassword } from '../utils';
+import { UserRole } from '../common/enum';
 
 @Injectable()
 export class UserService {
@@ -58,6 +59,13 @@ export class UserService {
     });
 
     return data.map((user) => removePassword(user));
+  }
+
+  async findEmployees() {
+    return this.userRepository.find({
+      where: { role: UserRole.EMPLOYEE },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async count(): Promise<number> {
