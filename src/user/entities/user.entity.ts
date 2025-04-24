@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { UserRole } from '../../common/enum';
 import { Order } from '../../orders/entities/order.entity';
+import { Post } from '../../post/entities/post.entity';
 
 @Entity('users')
 export class User {
@@ -40,4 +41,7 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToMany(() => Post, (post) => post.user)
+  posts: Post[];
 }
