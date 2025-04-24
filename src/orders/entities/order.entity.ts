@@ -5,9 +5,10 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-//   import { Feedback } from './feedback.entity';
+import { Feedback } from '../../feedback/entities/feedback.entity';
 
 @Entity('order')
 export class Order {
@@ -96,8 +97,8 @@ export class Order {
   @UpdateDateColumn({ name: 'updated_time' })
   updatedTime: Date;
 
-  // @OneToMany(() => Feedback, (feedback) => feedback.order)
-  // feedbacks: Feedback[];
+  @OneToMany(() => Feedback, (feedback) => feedback.order)
+  feedbacks: Feedback[];
 
   @Column({ name: 'sub_service', type: 'varchar', length: 255, nullable: true })
   subService?: string;

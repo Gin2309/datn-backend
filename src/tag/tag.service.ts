@@ -25,8 +25,6 @@ export class TagService {
     });
 
     return {
-      statusCode: HttpStatus.OK,
-      message: 'Success',
       data: {
         count: total,
         list: tags,
@@ -43,11 +41,23 @@ export class TagService {
   async update(id: number, dto: UpdateTagDto) {
     const tag = await this.findOne(id);
     Object.assign(tag, dto);
-    return this.tagRepo.save(tag);
+    const savedTag = await this.tagRepo.save(tag);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Success',
+      data: savedTag,
+    };
   }
 
   async remove(id: number) {
     const tag = await this.findOne(id);
-    return this.tagRepo.remove(tag);
+    const result = await this.tagRepo.remove(tag);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Success',
+      data: result,
+    };
   }
 }

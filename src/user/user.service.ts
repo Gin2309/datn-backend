@@ -1,6 +1,7 @@
 import { hashSync } from 'bcrypt';
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   Logger,
   NotFoundException,
@@ -113,7 +114,7 @@ export class UserService {
     const updatedUser = this.userRepository.merge(user, filteredData);
     const savedUser = await this.userRepository.save(updatedUser);
     return {
-      statusCode: 200,
+      statusCode: HttpStatus.OK,
       message: 'Success',
       data: removePassword(savedUser),
     };

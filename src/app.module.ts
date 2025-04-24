@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { OrdersModule } from './orders/orders.module';
 import { PostModule } from './post/post.module';
 import { TagModule } from './tag/tag.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TagModule } from './tag/tag.module';
     OrdersModule,
     PostModule,
     TagModule,
+    FeedbackModule,
   ],
   controllers: [],
   providers: [],

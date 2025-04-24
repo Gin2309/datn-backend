@@ -105,8 +105,6 @@ export class OrdersService {
     });
 
     return {
-      statusCode: HttpStatus.OK,
-      message: 'Success',
       data: {
         count: total,
         list: orders,
