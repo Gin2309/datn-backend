@@ -22,7 +22,7 @@ import { join } from 'path';
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: '160.191.244.248',
       port: 3310,
       username: 'vamedi',
       password: 'vamedi@1234',
