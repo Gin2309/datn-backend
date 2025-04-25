@@ -21,14 +21,14 @@ export class Post {
   @Column({ type: 'varchar', length: 255, unique: true })
   slug: string;
 
+  @Column({ type: 'varchar', length: 255 })
+  img: string;
+
   @Column({ name: 'short_desc', type: 'varchar', length: 255, nullable: true })
   shortDesc?: string;
 
   @Column({ type: 'text' })
   content: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  thumbnail?: string;
 
   @Column({ name: 'author_id' })
   authorId: number;

@@ -18,7 +18,7 @@ export class PostService {
     @InjectRepository(Tag) private readonly tagRepo: Repository<Tag>,
   ) {}
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, userRequest: any) {
     const { slug, tags: tagIds, ...rest } = createPostDto;
     const existing = await this.postRepo.findOne({ where: { slug } });
     if (existing) {
@@ -33,6 +33,7 @@ export class PostService {
     const post = this.postRepo.create({
       ...rest,
       slug,
+      authorId: userRequest.id,
       tags,
     });
 

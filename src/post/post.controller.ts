@@ -17,6 +17,7 @@ import { Roles } from '../common/decorators/roles.decorators';
 import { UserRole } from '../common/enum';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { getUser } from '../common/decorators/users.decorators';
 
 @ApiTags('posts')
 @ApiBearerAuth()
@@ -27,8 +28,8 @@ export class PostController {
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.EMPLOYEE)
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postService.create(createPostDto);
+  create(@getUser() userRequest, @Body() createPostDto: CreatePostDto) {
+    return this.postService.create(createPostDto, userRequest);
   }
 
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
