@@ -1,4 +1,4 @@
-version: "3.5"
+version: '3.5'
 
 services:
   db:
@@ -11,11 +11,12 @@ services:
       MYSQL_PASSWORD: vamedi@1234
       MYSQL_ROOT_PASSWORD: acd@1234
     ports:
-      - "3310:3306"
+      - '3310:3306'
     volumes:
-      - "./docker/db/data:/var/lib/mysql-vamedi"
-      - "./docker/db/my.cnf:/etc/mysql-vamedi/conf.d/my.cnf"
-      - "./docker/db/sql:/docker-entrypoint-initdb.d"
+      - './docker/db/data:/var/lib/mysql-vamedi'
+      - './docker/db/my.cnf:/etc/mysql-vamedi/conf.d/my.cnf'
+      - './docker/db/sql:/docker-entrypoint-initdb.d'
+    restart: unless-stopped
 
 networks:
   doop-network:

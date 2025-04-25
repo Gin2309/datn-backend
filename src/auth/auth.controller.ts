@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { UserService } from '../user/user.service';
 import { RegisterDto } from './dto/register';
+import { AdminLoginDto } from './dto/adminLogin.dto';
 import { Roles } from '../common/decorators/roles.decorators';
 import { UserRole } from '../common/enum';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -23,7 +24,7 @@ export class AuthController {
   }
 
   @Post('/admin/login')
-  async adminLogin(@Body() data: LoginDto): Promise<any> {
+  async adminLogin(@Body() data: AdminLoginDto): Promise<any> {
     return await this.authService.adminLogin(data);
   }
 
