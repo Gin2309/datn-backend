@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UserModule } from './user/user.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { OrdersModule } from './orders/orders.module';
@@ -20,16 +20,19 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'file-storage', 'uploads'),
       serveRoot: '/file-storage/view',
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: '160.191.244.248',
-      port: 3310,
-      username: 'vamedi',
-      password: 'vamedi@1234',
-      database: 'vamedi',
-      autoLoadEntities: true,
-      entities: [],
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'mysql',
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get<string>('DB_USERNAME'),
+        password: config.get<string>('DB_PASSWORD'),
+        database: config.get<string>('DB_NAME'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
     }),
     AuthModule,
     UserModule,

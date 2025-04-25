@@ -9,7 +9,7 @@ import { diskStorage } from 'multer';
 import { FileStorageService } from './file-storage.service';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('file Storage')
+@ApiTags('file storage')
 @Controller('file')
 export class FileStorageController {
   constructor(private readonly fileStorageService: FileStorageService) {}
