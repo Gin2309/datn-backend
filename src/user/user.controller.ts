@@ -17,7 +17,7 @@ import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UserRole } from '../common/enum';
-import { Roles } from 'src/common/decorators/roles.decorators';
+import { Roles } from '../common/decorators/roles.decorators';
 
 @ApiTags('users')
 @ApiBearerAuth()
