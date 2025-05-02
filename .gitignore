@@ -63,3 +63,6 @@ db/
 
 #storage
 file-storage/
+
+#package
+package.json
