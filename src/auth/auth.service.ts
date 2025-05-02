@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import {
+  BadRequestException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -10,6 +11,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { LoginDto } from './dto/login.dto';
 import { UserRole } from '../common/enum';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { UpdateProfileDto } from './dto/updateProfile.dto';
 
 @Injectable()
 export class AuthService {
@@ -108,5 +111,74 @@ export class AuthService {
     } catch (error) {
       throw new HttpException('Invalid Token', HttpStatus.UNAUTHORIZED);
     }
+  }
+
+  async refreshToken(token: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+
+      const userPayload = {
+        id: payload.id,
+        email: payload.email,
+        role: payload.role,
+      };
+
+      const accessToken = await this.jwtService.signAsync(userPayload, {
+        expiresIn: '1d',
+      });
+
+      const refreshToken = await this.jwtService.signAsync(userPayload, {
+        expiresIn: '7d',
+      });
+
+      const decodedAccessToken = this.jwtService.decode(accessToken) as any;
+
+      return {
+        accessToken,
+        refreshToken,
+        expiredAt: decodedAccessToken.exp,
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async changePassword(
+    userRequest: any,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const { password, newPassword, confirmNewPassword } = changePasswordDto;
+
+    const user = await this.userService.findOneById(userRequest.id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException(
+        'New password and confirm password do not match',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.userService.update(userRequest.id, { password: hashedPassword });
+  }
+
+  async updateProfile(
+    userRequest: any,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<void> {
+    const user = await this.userService.findOneById(userRequest.id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    await this.userService.update(userRequest.id, updateProfileDto);
   }
 }

@@ -1,6 +1,7 @@
 import { hashSync } from 'bcrypt';
 import {
   BadRequestException,
+  ForbiddenException,
   HttpStatus,
   Injectable,
   Logger,
@@ -24,7 +25,13 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { email, avatar, password, ...rest } = createUserDto;
+    const {
+      email,
+      avatar,
+      password,
+      role = UserRole.USER,
+      ...rest
+    } = createUserDto;
 
     const existingUser = await this.userRepository.findOneBy({ email });
 
@@ -44,6 +51,7 @@ export class UserService {
       ...rest,
       email,
       password: hashedPassword,
+      role,
       avatar: avatar || '',
     });
 
@@ -86,6 +94,14 @@ export class UserService {
     return removePassword(user);
   }
 
+  async findOneById(id: number): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    return user;
+  }
+
   async findOneByEmail(email: string): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { email },
@@ -124,6 +140,10 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`User not found`);
+    }
+
+    if (user.role === UserRole.SUPERADMIN) {
+      throw new ForbiddenException('Cannot delete SUPERADMIN');
     }
 
     await this.userRepository.delete(id);

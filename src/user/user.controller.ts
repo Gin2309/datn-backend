@@ -8,14 +8,20 @@ import {
   Put,
   Query,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { UserRole } from '../common/enum';
+import { Roles } from 'src/common/decorators/roles.decorators';
 
 @ApiTags('users')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -34,6 +40,7 @@ export class UserController {
   })
   @ApiQuery({ name: 'sortDesc', required: false, type: Boolean })
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   async findAll(
     @Query('page') page = 1,
     @Query('itemsPerPage') itemsPerPage = 20,
@@ -80,6 +87,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   async deleteUser(@Param('id') id: number) {
     await this.userService.remove(id);
     return {
