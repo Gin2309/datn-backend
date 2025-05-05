@@ -20,13 +20,13 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { getUser } from '../common/decorators/users.decorators';
 
 @ApiTags('posts')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.EMPLOYEE)
   create(@getUser() userRequest, @Body() createPostDto: CreatePostDto) {
     return this.postService.create(createPostDto, userRequest);
@@ -66,12 +66,16 @@ export class PostController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.EMPLOYEE)
   update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.postService.update(+id, updatePostDto);
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN, UserRole.EMPLOYEE)
   remove(@Param('id') id: string) {
     return this.postService.remove(+id);

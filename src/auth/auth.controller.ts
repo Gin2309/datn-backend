@@ -19,6 +19,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { getUser } from '../common/decorators/users.decorators';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
+import { removePassword } from '../utils';
 
 @ApiTags('auth')
 @Controller('')
@@ -50,7 +51,7 @@ export class AuthController {
     const token = request.headers.authorization.split(' ')[1];
     const user = await this.authService.verifyToken(token);
 
-    return user;
+    return removePassword(user);
   }
 
   @Post('refresh-token')
