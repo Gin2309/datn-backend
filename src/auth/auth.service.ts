@@ -13,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 import { UserRole } from '../common/enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
+import { removePassword } from '../utils';
 
 @Injectable()
 export class AuthService {
@@ -173,12 +174,18 @@ export class AuthService {
   async updateProfile(
     userRequest: any,
     updateProfileDto: UpdateProfileDto,
-  ): Promise<void> {
+  ): Promise<any> {
     const user = await this.userService.findOneById(userRequest.id);
     if (!user) {
       throw new BadRequestException('User not found');
     }
 
     await this.userService.update(userRequest.id, updateProfileDto);
+
+    const updatedUser = await this.userService.findOneById(userRequest.id);
+
+    return {
+      data: removePassword(updatedUser),
+    };
   }
 }

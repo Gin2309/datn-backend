@@ -76,6 +76,5 @@ export class AuthController {
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     await this.authService.updateProfile(userRequest, updateProfileDto);
-    return { message: 'Profile updated successfully' };
   }
 }
