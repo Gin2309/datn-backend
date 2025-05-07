@@ -68,7 +68,9 @@ export class AuthController {
     return { message: 'Password changed successfully' };
   }
 
-  @Put('profile')
+  @Put('update-profile')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   async updateProfile(
     @getUser() userRequest,
     @Body() updateProfileDto: UpdateProfileDto,
