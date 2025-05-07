@@ -75,6 +75,6 @@ export class AuthController {
     @getUser() userRequest,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
-    await this.authService.updateProfile(userRequest, updateProfileDto);
+    return this.authService.updateProfile(userRequest, updateProfileDto);
   }
 }
