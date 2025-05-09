@@ -10,6 +10,7 @@ import { TagModule } from './tag/tag.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { FileStorageModule } from './file-storage/file-storage.module';
 import { join } from 'path';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { join } from 'path';
     TagModule,
     FeedbackModule,
     FileStorageModule,
+    MailModule,
   ],
   controllers: [],
   providers: [],

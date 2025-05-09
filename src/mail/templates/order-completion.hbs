@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Order is Complete</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 30px 0;
+        border-radius: 15px;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .header {
+        background-color: #ffffff;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .header img {
+        max-width: 140px;
+        margin-bottom: 10px;
+      }
+      .header h1 {
+        color: #ff004d;
+      }
+      .content {
+        padding: 20px;
+      }
+      .content h3 {
+        color: #444;
+      }
+      .content p {
+        margin: 10px 0;
+        font-size: 14px;
+      }
+      .content .highlight {
+        font-weight: bold;
+        color: #ff004d;
+      }
+      table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+      }
+      table th, table td {
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+      table th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+      }
+      .footer {
+        background-color: #343a40;
+        color: #ffffff;
+        padding: 15px;
+        text-align: center;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header Section -->
+      <div class="header">
+        <a href="{{domain}}" target="_blank">
+          <img src="{{logoUrl}}" alt="Company Logo" />
+        </a>
+        <h1>Your Order is Complete</h1>
+      </div>
+
+      <!-- Content Section -->
+      <div class="content">
+        <h3>Hello,</h3>
+        <p>We are happy to inform you that your order has been completed successfully. Below are the details of your order:</p>
+
+        <!-- Order Details Table -->
+        <table>
+          <tr>
+            <th>Order ID</th>
+            <td>{{orderId}}</td>
+          </tr>
+          <tr>
+            <th>Service</th>
+            <td>{{service}}</td>
+          </tr>
+          <tr>
+            <th>Design Style</th>
+            <td>{{designStyle}}</td>
+          </tr>
+          <tr>
+            <th>Additional Service</th>
+            <td>{{additionalService}}</td>
+          </tr>
+          <tr>
+            <th>Total Order</th>
+            <td>{{orderTotal}}</td>
+          </tr>
+          <tr>
+            <th>Order Date</th>
+            <td>{{createdTime}}</td>
+          </tr>
+        </table>
+
+        <p>If you have any questions regarding your order, feel free to reach out to our support team.</p>
+      </div>
+
+      <!-- Footer Section -->
+      <div class="footer">
+        <p>This email was sent from <a style="color: #ff004d;" href="{{domain}}" target="_blank">{{domain}}</a>.</p>
+        <p>If you have any questions, please contact our support team.</p>
+      </div>
+    </div>
+  </body>
+</html>
