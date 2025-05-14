@@ -6,10 +6,12 @@ import {
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+  import { UserDto } from './dto/user.dto';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Tag } from '../tag/entities/tag.entity';
+
 
 @Injectable()
 export class PostService {
@@ -50,13 +52,22 @@ export class PostService {
       order: { id: sortDesc ? 'DESC' : 'ASC' },
       skip: (page - 1) * itemsPerPage,
       take: itemsPerPage,
-      relations: ['tags'],
+      relations: ['tags','user'],
+    });
+
+    const postsWithSafeUser = data.map(post => {
+      const { password, phone, avatar, createdAt, updatedAt, ...safeUser } = post.user;
+
+      return {
+        ...post,
+        user: safeUser as UserDto, 
+      };
     });
 
     return {
       data: {
         count: total,
-        list: data,
+        list: postsWithSafeUser,
       },
     };
   }
@@ -64,30 +75,41 @@ export class PostService {
   async findOneBySlug(slug: string) {
     const post = await this.postRepo.findOne({
       where: { slug },
-      relations: ['tags'],
+      relations: ['tags','user'],
     });
 
     if (!post) throw new NotFoundException('Post not found');
 
+    const { password, phone, avatar, createdAt, updatedAt, ...safeUser } = post.user;
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Success',
-      data: post,
+      data: {
+        ...post,
+        user: safeUser as UserDto,
+      },
     };
   }
 
   async findOneById(id: number) {
     const post = await this.postRepo.findOne({
       where: { id },
-      relations: ['tags'],
+      relations: ['tags','user'],
     });
 
     if (!post) throw new NotFoundException('Post not found');
 
+    const { password, phone, avatar, createdAt, updatedAt, ...safeUser } = post.user;
+
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Success',
-      data: post,
+      data: {
+        ...post,
+        user: safeUser as UserDto,
+      },
     };
   }
 

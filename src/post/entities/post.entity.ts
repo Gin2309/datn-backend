@@ -6,6 +6,8 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Tag } from '../../tag/entities/tag.entity';
@@ -44,4 +46,10 @@ export class Post {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
   tags: Tag[];
+
+  @CreateDateColumn({ name: 'created_time' })
+  createdTime: Date;
+
+  @UpdateDateColumn({ name: 'updated_time' })
+  updatedTime: Date;
 }
