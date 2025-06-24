@@ -51,6 +51,8 @@ export class FeedbackService {
     const orders = await this.orderRepo.find({
       where: { assignedId: assignId },
       relations: ['feedbacks'],
+      order: { createdTime: 'DESC' },
+
     });
   
     const allFeedbacks = orders.flatMap((order) => order.feedbacks);
