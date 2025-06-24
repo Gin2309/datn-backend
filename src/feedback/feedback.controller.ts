@@ -18,4 +18,10 @@ export class FeedbackController {
   findAll(@Query('orderId') orderId?: string) {
     return this.feedbackService.findAll(orderId);
   }
+
+  @ApiQuery({ name: 'assignId', required: true, type: Number })
+  @Get('by-assign')
+  findByAssignId(@Query('assignId') assignId: number) {
+    return this.feedbackService.findByAssignId(assignId);
+  }
 }

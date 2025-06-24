@@ -46,4 +46,37 @@ export class FeedbackService {
       },
     };
   }
+
+  async findByAssignId(assignId: number) {
+    const orders = await this.orderRepo.find({
+      where: { assignedId: assignId },
+      relations: ['feedbacks'],
+    });
+  
+    const allFeedbacks = orders.flatMap((order) => order.feedbacks);
+  
+    return {
+      data: {
+        count: allFeedbacks.length,
+        list: allFeedbacks,
+      },
+    };
+  }
+
+  // async findByAssignId(assignId: number) {
+  //   const orders = await this.orderRepo.find({
+  //     where: { assignedId: assignId },
+  //     relations: ['feedbacks'], // Nếu muốn trả kèm feedbacks trong mỗi order
+  //     order: { createdTime: 'DESC' }, // Optional: sắp xếp mới nhất
+  //   });
+  
+  //   return {
+  //     data: {
+  //       count: orders.length,
+  //       list: orders,
+  //     },
+  //   };
+  // }
+  
+  
 }
