@@ -9,8 +9,10 @@ import { PostModule } from './post/post.module';
 import { TagModule } from './tag/tag.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { FileStorageModule } from './file-storage/file-storage.module';
+import { FirebaseModule } from './firebase/firebase.module';
 import { join } from 'path';
 import { MailModule } from './mail/mail.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { MailModule } from './mail/mail.module';
     FeedbackModule,
     FileStorageModule,
     MailModule,
+    FirebaseModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],

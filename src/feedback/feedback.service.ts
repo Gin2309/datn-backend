@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Feedback } from './entities/feedback.entity';
 import { Order } from '../orders/entities/order.entity';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class FeedbackService {
@@ -12,6 +13,7 @@ export class FeedbackService {
     private readonly feedbackRepo: Repository<Feedback>,
     @InjectRepository(Order)
     private orderRepo: Repository<Order>,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(dto: CreateFeedbackDto) {
@@ -23,11 +25,41 @@ export class FeedbackService {
     const feedback = this.feedbackRepo.create(dto);
     await this.feedbackRepo.save(feedback);
 
+    // Tạo thông báo chi tiết
+    const notificationContent = `Đơn hàng: ${order.projectName} (ID: ${order.id})
+Dịch vụ: ${order.service}
+Feedback: "${dto.content}"`;
+
+    // Gửi thông báo không chặn luồng chính
+    this.sendNotifications(order, notificationContent).catch(error => {
+      console.error('Failed to send notifications:', error);
+    });
+
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Success',
       data: feedback,
     };
+  }
+
+  private async sendNotifications(order: Order, content: string): Promise<void> {
+    try {
+      await this.notificationService.create({
+        title: `Feedback mới cho đơn hàng ${order.projectName}`,
+        content,
+        receiverId: 1, 
+      });
+
+      if (order.assignedId) {
+        await this.notificationService.create({
+          title: `Feedback mới cho đơn hàng ${order.projectName}`,
+          content,
+          receiverId: order.assignedId,
+        });
+      }
+    } catch (error) {
+      console.error('Error sending notifications:', error);
+    }
   }
 
   async findAll(orderId?: string) {
@@ -51,34 +83,19 @@ export class FeedbackService {
     const orders = await this.orderRepo.find({
       where: { assignedId: assignId },
       relations: ['feedbacks'],
-      order: { createdTime: 'DESC' },
-
+      order: {
+        createdTime:  'DESC' 
+      },
     });
   
     const allFeedbacks = orders.flatMap((order) => order.feedbacks);
-  
+   
     return {
       data: {
         count: allFeedbacks.length,
         list: allFeedbacks,
       },
     };
-  }
-
-  // async findByAssignId(assignId: number) {
-  //   const orders = await this.orderRepo.find({
-  //     where: { assignedId: assignId },
-  //     relations: ['feedbacks'], // Nếu muốn trả kèm feedbacks trong mỗi order
-  //     order: { createdTime: 'DESC' }, // Optional: sắp xếp mới nhất
-  //   });
-  
-  //   return {
-  //     data: {
-  //       count: orders.length,
-  //       list: orders,
-  //     },
-  //   };
-  // }
-  
+  } 
   
 }

@@ -17,6 +17,7 @@ import { OrderStatus } from '../common/enum';
 import { UserRole } from '../common/enum';
 import { validateOrderPermission } from '../utils/permission.util';
 import { AssignEmployeeDto } from './dto/assign.dto';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class OrdersService {
@@ -25,6 +26,7 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(userRequest: User, data: CreateOrderDto) {
@@ -68,7 +70,30 @@ export class OrdersService {
 
     await this.orderRepository.save(order);
 
+    // Gửi thông báo không chặn luồng chính
+    this.sendOrderCreationNotifications(order).catch(error => {
+      console.error('Failed to send order notifications:', error);
+    });
+
     return { id: order.id, success: true };
+  }
+
+  // Hàm riêng để gửi thông báo khi tạo order
+  private async sendOrderCreationNotifications(order: Order): Promise<void> {
+    try {
+      const notificationContent = `Đơn hàng mới: ${order.projectName} (ID: ${order.id})
+Dịch vụ: ${order.service}
+Giá: ${order.servicePrice}`;
+
+      // Gửi thông báo cho admin
+      await this.notificationService.create({
+        title: `Đơn hàng mới: ${order.projectName}`,
+        content: notificationContent,
+        receiverId: 1, // Admin ID
+      });
+    } catch (error) {
+      console.error('Error sending order notifications:', error);
+    }
   }
 
   async findAll(
@@ -197,11 +222,34 @@ export class OrdersService {
 
     const updatedOrder = await this.orderRepository.save(order);
 
+    // Gửi thông báo không chặn luồng chính
+    this.sendAssignmentNotifications(updatedOrder, employee).catch(error => {
+      console.error('Failed to send assignment notifications:', error);
+    });
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Success',
       data: updatedOrder,
     };
+  }
+
+  // Hàm riêng để gửi thông báo khi gán nhân viên
+  private async sendAssignmentNotifications(order: Order, employee: User): Promise<void> {
+    try {
+      const notificationContent = `Đơn hàng: ${order.projectName} (ID: ${order.id})
+Dịch vụ: ${order.service}
+Đã được gán cho bạn`;
+
+      // Gửi thông báo cho nhân viên được gán
+      await this.notificationService.create({
+        title: `Bạn được gán đơn hàng: ${order.projectName}`,
+        content: notificationContent,
+        receiverId: employee.id,
+      });
+    } catch (error) {
+      console.error('Error sending assignment notifications:', error);
+    }
   }
 
   async update(orderId: string, userRequest: User, data: UpdateOrderDto) {
@@ -211,6 +259,10 @@ export class OrdersService {
       userRequest,
     );
 
+    // Kiểm tra nếu có thay đổi trạng thái
+    const statusChanged = data.status && data.status !== order.status;
+    const oldStatus = order.status;
+
     const updatedOrder = await this.orderRepository.save({
       ...order,
       ...data,
@@ -218,11 +270,51 @@ export class OrdersService {
       updatedTime: new Date(),
     });
 
+    // Nếu trạng thái thay đổi, gửi thông báo
+    if (statusChanged) {
+      this.sendStatusChangeNotifications(updatedOrder, oldStatus).catch(error => {
+        console.error('Failed to send status change notifications:', error);
+      });
+    }
+
     return {
       statusCode: HttpStatus.OK,
       message: 'Success',
       id: updatedOrder.id,
     };
+  }
+
+  // Hàm riêng để gửi thông báo khi trạng thái đơn hàng thay đổi
+  private async sendStatusChangeNotifications(order: Order, oldStatus: string): Promise<void> {
+    try {
+      const notificationContent = `Đơn hàng: ${order.projectName} (ID: ${order.id})
+Trạng thái đã thay đổi từ ${oldStatus} thành ${order.status}`;
+
+      // Gửi thông báo cho khách hàng
+      await this.notificationService.create({
+        title: `Trạng thái đơn hàng đã thay đổi: ${order.projectName}`,
+        content: notificationContent,
+        receiverId: order.customerId,
+      });
+
+      // Gửi thông báo cho nhân viên được gán (nếu có)
+      if (order.assignedId) {
+        await this.notificationService.create({
+          title: `Trạng thái đơn hàng đã thay đổi: ${order.projectName}`,
+          content: notificationContent,
+          receiverId: order.assignedId,
+        });
+      }
+
+      // Gửi thông báo cho admin
+      await this.notificationService.create({
+        title: `Trạng thái đơn hàng đã thay đổi: ${order.projectName}`,
+        content: notificationContent,
+        receiverId: 1, // Admin ID
+      });
+    } catch (error) {
+      console.error('Error sending status change notifications:', error);
+    }
   }
 
   async remove(userRequest: User, id: string) {
