@@ -1,26 +1,31 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import * as path from 'path';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FirebaseAdminService implements OnModuleInit {
+  constructor(private config: ConfigService) {}
+
   onModuleInit() {
-    const serviceAccount = require(path.resolve(__dirname, './test-3ae35-firebase-adminsdk-fbsvc-cbf12e0697.json'));
+    const serviceAccountPath = this.config.get<string>('FIREBASE_PATH');
+
+    const serviceAccount = require(path.resolve(__dirname, serviceAccountPath));
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
   }
 
-  async sendNotification( body: string) {
-    const CLIENT_FCM_TOKEN = 'cpG-j6pnl3WbuK1hihkNIB:APA91bG-Etv-R_9Abd5yeW5Ad1josrPBZYC83eCpUy1qMbmfRgYb0cGeI95is2brN97A2nmb2aGxQuABJ-TV0Zfd-3v01B_4facVbEc9aG113dYetPImM7s'; 
+  async sendNotification( fcmToken:string,body: string) {
+   
 
     const message = {
       notification: {
         title: "Thông báo mới",
         body,
       },
-      token: CLIENT_FCM_TOKEN,
+      token: fcmToken,
     };
 
     try {

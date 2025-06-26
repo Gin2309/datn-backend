@@ -6,23 +6,30 @@ import { In, Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { ReadNotificationsDto } from './dto/read-notifications.dto';
 import { FirebaseAdminService } from '../firebase/firebase-admin.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class NotificationService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepo: Repository<Notification>,
-    private readonly firebaseAdminService: FirebaseAdminService,
+    private readonly firebaseAdminService: FirebaseAdminService,  
+    private readonly userService: UserService,
   ) {}
 
   async create(createNotificationDto: CreateNotificationDto) {
     const notification = this.notificationRepo.create(createNotificationDto);
     await this.notificationRepo.save(notification);
 
-    try {
-      await this.firebaseAdminService.sendNotification(notification.content);
-    } catch (error) {
-      console.error('Failed to send Firebase notification:', error);
+    const user = await this.userService.findOneById(notification.receiverId);
+
+    if (user && user.fcmToken) {
+      try {
+        await this.firebaseAdminService.sendNotification(user.fcmToken, notification.content);
+      
+      } catch (error) {
+        console.error('Failed to send Firebase notification:', error);
+      }
     }
 
     return {

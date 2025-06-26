@@ -14,6 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { removePassword } from '../utils';
 import { UserRole } from '../common/enum';
+import { SaveFcmTokenDto } from './dto/save-fcm-token.dto';
 
 @Injectable()
 export class UserService {
@@ -57,6 +58,28 @@ export class UserService {
 
     return this.userRepository.save(user);
   }
+
+ 
+
+  async saveFcmToken(userId: number, saveFcmTokenDto: SaveFcmTokenDto): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+  
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+  
+    user.fcmToken = saveFcmTokenDto.token;
+  
+    await this.userRepository.save(user);
+  
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'FCM token saved successfully',
+    };
+  }
+  
 
   async findAll(page = 1, itemsPerPage = 20, sortDesc = true): Promise<any[]> {
     const [data] = await this.userRepository.findAndCount({

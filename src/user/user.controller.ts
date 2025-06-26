@@ -18,6 +18,9 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UserRole } from '../common/enum';
 import { Roles } from '../common/decorators/roles.decorators';
+import { SaveFcmTokenDto } from './dto/save-fcm-token.dto';
+import { getUser } from '../common/decorators/users.decorators';
+
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -76,6 +79,12 @@ export class UserController {
     return {
       data: await this.userService.findOne(+id),
     };
+  }
+  
+  @Post('fcm-token')
+   async saveFcmToken(@getUser() userRequest, @Body() dto: SaveFcmTokenDto) {
+    const userId = userRequest.user?.id;
+    return this.userService.saveFcmToken(userId, dto);
   }
 
   @Put(':id')
