@@ -327,4 +327,76 @@ Trạng thái đã thay đổi từ ${oldStatus} thành ${order.status}`;
       message: 'Success',
     };
   }
+
+  async getStatistics() {
+    const now = new Date();
+    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+    // Tổng số đơn hàng toàn hệ thống
+    const totalOrders = await this.orderRepository.count();
+
+    // Đơn hàng tháng hiện tại
+    const currentMonthOrders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.createdTime >= :currentMonth', { currentMonth })
+      .getCount();
+
+    // Đơn hàng tháng trước
+    const lastMonthOrders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.createdTime >= :lastMonth', { lastMonth })
+      .andWhere('order.createdTime <= :lastMonthEnd', { lastMonthEnd })
+      .getCount();
+
+    // Tính tăng trưởng
+    const growth = currentMonthOrders - lastMonthOrders;
+    const growthPercent = lastMonthOrders === 0 
+      ? (currentMonthOrders > 0 ? 100 : 0)
+      : Math.round(((currentMonthOrders - lastMonthOrders) / lastMonthOrders) * 100);
+
+    
+    const currentRevenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.orderTotal)', 'total')
+      .where('order.createdTime >= :currentMonth', { currentMonth })
+      .andWhere('order.orderTotal IS NOT NULL')
+      .getRawOne();
+
+    const lastRevenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.orderTotal)', 'total')
+      .where('order.createdTime >= :lastMonth', { lastMonth })
+      .andWhere('order.createdTime <= :lastMonthEnd', { lastMonthEnd })
+      .andWhere('order.orderTotal IS NOT NULL')
+      .getRawOne();
+
+    const currentRevenueValue = parseFloat(currentRevenue?.total || '0');
+    const lastRevenueValue = parseFloat(lastRevenue?.total || '0');
+    const revenueGrowth = currentRevenueValue - lastRevenueValue;
+    const revenueGrowthPercent = lastRevenueValue === 0 
+      ? (currentRevenueValue > 0 ? 100 : 0)
+      : Math.round(((currentRevenueValue - lastRevenueValue) / lastRevenueValue) * 100);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Success',
+      data: {
+        totalOrders,
+        thisMonth: currentMonthOrders,
+        lastMonth: lastMonthOrders,
+        growth: growth,
+        growthPercent: growthPercent,
+        isGrowthPositive: growth >= 0,
+        revenue: {
+          thisMonth: currentRevenueValue,
+          lastMonth: lastRevenueValue,
+          growth: revenueGrowth,
+          growthPercent: revenueGrowthPercent,
+          isGrowthPositive: revenueGrowth >= 0,
+        },
+      },
+    };
+  }
 }

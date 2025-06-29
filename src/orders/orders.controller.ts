@@ -76,6 +76,12 @@ export class OrdersController {
     return this.ordersService.countByStatus(userRequest);
   }
 
+  @Get('statistics')
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  async getStatistics() {
+    return this.ordersService.getStatistics();
+  }
+
   @Get(':id')
   findOne(@getUser() userRequest, @Param('id') id: string) {
     return this.ordersService.findOne(userRequest, id);
