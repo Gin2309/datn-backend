@@ -362,6 +362,7 @@ Trạng thái đã thay đổi từ ${oldStatus} thành ${order.status}`;
       .select('SUM(order.orderTotal)', 'total')
       .where('order.createdTime >= :currentMonth', { currentMonth })
       .andWhere('order.orderTotal IS NOT NULL')
+      .andWhere('order.status != :awaitingStatus', { awaitingStatus: OrderStatus.AWAITING })
       .getRawOne();
 
     const lastRevenue = await this.orderRepository
@@ -370,6 +371,7 @@ Trạng thái đã thay đổi từ ${oldStatus} thành ${order.status}`;
       .where('order.createdTime >= :lastMonth', { lastMonth })
       .andWhere('order.createdTime <= :lastMonthEnd', { lastMonthEnd })
       .andWhere('order.orderTotal IS NOT NULL')
+      .andWhere('order.status != :awaitingStatus', { awaitingStatus: OrderStatus.AWAITING })
       .getRawOne();
 
     const currentRevenueValue = parseFloat(currentRevenue?.total || '0');
